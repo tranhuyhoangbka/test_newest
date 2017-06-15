@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+redColor="\033[0;31m"
+noColor="\033[0m"
+
+function exitCodeToText() {
+  text="${redColor}NG${noColor}"
+  
+  if [[ "$1" == "0" ]]; then
+    text="OK"
+  fi
+
+  printf "${text}"
+}
+
+bundle exec rspec
+rspecExitCode=$?
+
+bundle exec rubocop
+rubocopExitCode=$?
+
+bundle exec bundle-audit check
+bundleAuditExitCode=$?
+
+bundle exec brakeman -z
+brakemanExitCode=$?
+
+coverageContent=$(cat coverage/index.html)
+coveragePercent=$(echo "$coverageContent" | grep -Pzo '.*group_name.*Models.*(.|\n).*[0-9]{1,3}\.[0-9]{1,2}\%' | grep -Pzo '[0-9]{1,3}\.[0-9]{1,2}')
+
+echo "======================LOG======================"
+echo "RSpec:        " $(exitCodeToText $rspecExitCode)
+echo "Rubocop:      " $(exitCodeToText $rubocopExitCode)
+echo "Bundle Audit: " $(exitCodeToText $bundleAuditExitCode)
+echo "Brakeman:     " $(exitCodeToText $brakemanExitCode)
+echo "Coverage:      ${coveragePercent}%"
+echo "==============================================="
+
+if [[ ("$rspecExitCode" -gt 0) || ("$rubocopExitCode" -gt 0) || ("$bundleAuditExitCode" -gt 0) || ("$brakemanExitCode" -gt 0) || ("$coveragePercent" != "100.0")  ]]; then
+  printf "${redColor}Push aborted. Please check log for more details${noColor}\n"
+  exit 1
+else
+  exit 0
+fi
