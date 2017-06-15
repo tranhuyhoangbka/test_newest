@@ -30,7 +30,12 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'pry-rails'
   gem "rubocop", "~> 0.40.0", require: false
-  gem 'rspec-rails'
   gem "brakeman"
   gem "bundler-audit", "~> 0.4.0"
+end
+
+group :test do
+  gem 'rspec-rails'
+  gem "rspec-collection_matchers"
+  gem 'shoulda-matchers', '~> 3.1'
 end
