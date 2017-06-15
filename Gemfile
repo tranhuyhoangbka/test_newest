@@ -31,4 +31,6 @@ group :development, :test do
   gem 'pry-rails'
   gem "rubocop", "~> 0.40.0", require: false
   gem 'rspec-rails'
+  gem "brakeman"
+  gem "bundler-audit", "~> 0.4.0"
 end
